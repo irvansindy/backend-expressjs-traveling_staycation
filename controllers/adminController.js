@@ -7,33 +7,73 @@ module.exports = {
     },
 
     viewCategory: async (req, res) => {
-        const category = await Category.find();
-        // console.log(category);
-        res.render('admin/category/view_category', {category})
+        try {
+            const category = await Category.find();
+            const alertMessage = req.flash('alertMessage');
+            const alertStatus = req.flash('alertStatus');
+            const alert = {
+                message: alertMessage,
+                status: alertStatus,
+            };
+            console.log(alert);
+            res.render('admin/category/view_category', {
+                category,
+                alert
+            });
+        } catch (error) {
+            
+            res.redirect('/admin/category');
+        }
     },
 
     addCategory: async (req, res) => {
-        const { name } = req.body;
-        // console.log(name);
-        await Category.create({
-            name
-        });
-        res.redirect('/admin/category');
+        try {
+            const { name } = req.body;
+            await Category.create({
+                name
+            });
+            req.flash('alertMessage', 'success add category');
+            req.flash('alertStatus', 'success');
+            res.redirect('/admin/category');
+        } catch (error) {
+            req.flash('alertMessage', '$error.message');
+            req.flash('alertStatus', 'danger');
+            res.redirect('/admin/category');
+        }
+
     },
 
     editCategory: async (req, res) => {
-        const { id, name } = req.body;
-        const category = await Category.findOne({ _id: id });
-        category.name = name;
-        await category.save();
-        res.redirect('/admin/category');        
+        try {
+            const { id, name } = req.body;
+            const category = await Category.findOne({ _id: id });
+            category.name = name;
+            await category.save();
+            req.flash('alertMessage', 'success update category');
+            req.flash('alertStatus', 'success');
+            res.redirect('/admin/category');
+            
+        } catch (error) {
+            req.flash('alertMessage', '$error.message');
+            req.flash('alertStatus', 'danger');
+            res.redirect('/admin/category');
+        }
     },
     
     deleteCategory: async (req, res) => {
-        const { id } =req.params;
-        const category = await Category.findOne({ _id: id });
-        await category.remove();
-        res.redirect('/admin/category');
+        try {
+            const { id } =req.params;
+            const category = await Category.findOne({ _id: id });
+            await category.remove();
+            req.flash('alertMessage', 'success delete category');
+            req.flash('alertStatus', 'success');
+            res.redirect('/admin/category');
+        } catch (error) {
+            req.flash('alertMessage', '$error.message');
+            req.flash('alertStatus', 'danger');
+            res.redirect('/admin/category');
+        }
+        
     },
 
     viewBank: (req, res) => {
